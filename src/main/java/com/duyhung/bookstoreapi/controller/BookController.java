@@ -39,5 +39,21 @@ public class BookController {
         ));
     }
 
+    @GetMapping("/book/getByAuthor")
+    public ResponseEntity<?> getBooksByAuthor(@RequestParam String authorName) {
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Success",
+                bookService.getBookByAuthor(authorName)
+        ));
+    }
 
+    @GetMapping("/book/getByGenre")
+    public ResponseEntity<?> getBooksByGenre(@RequestParam String genreName) {
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Success",
+                bookService.getBooksByGenre(genreName)
+        ));
+    }
 }

@@ -3,10 +3,12 @@ package com.duyhung.bookstoreapi.service;
 import com.duyhung.bookstoreapi.dto.BookDto;
 import com.duyhung.bookstoreapi.entity.Author;
 import com.duyhung.bookstoreapi.entity.Book;
+import com.duyhung.bookstoreapi.entity.BookImage;
 import com.duyhung.bookstoreapi.entity.Genre;
 import com.duyhung.bookstoreapi.repository.AuthorRepository;
 import com.duyhung.bookstoreapi.repository.BookRepository;
 import com.duyhung.bookstoreapi.repository.GenreRepository;
+import com.duyhung.bookstoreapi.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -22,12 +24,12 @@ public class BookService {
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
     private final ModelMapper modelMapper;
+    private final ImageRepository imageRepository;
 
     public BookDto addNewBook(BookDto bookDto) {
         Author author = authorRepository.findByAuthorName(bookDto.getAuthorName()).orElseThrow(() -> new RuntimeException("Author not found"));
 
         List<Genre> genres = bookDto.getGenreNameList().stream().map(genreName -> genreRepository.findByGenreName(genreName).orElseThrow(() -> new RuntimeException("Genre not found"))).collect(Collectors.toList());
-
 
         Book book = new Book();
         book.setTitle(bookDto.getTitle());
@@ -39,6 +41,13 @@ public class BookService {
         book.setAuthor(author);
         book.setGenres(genres);
         bookRepository.save(book);
+
+        for (String url : bookDto.getImgUrls()) {
+            BookImage image = new BookImage();
+            image.setImageUrl(url);
+            image.setBook(book);
+            imageRepository.save(image);
+        }
 
         return bookDto;
     }
@@ -55,12 +64,20 @@ public class BookService {
         BookDto bookDto = modelMapper.map(book, BookDto.class);
         if (book.getGenres() != null) {
             bookDto.setGenreNameList(
-                    book.getGenres().stream()
+                    book.getGenres()
+                            .stream()
                             .map(Genre::getGenreName)
                             .collect(Collectors.toList())
             );
         }
-
+        if (book.getImages() != null) {
+            bookDto.setImgUrls(
+                    book.getImages()
+                            .stream()
+                            .map(BookImage::getImageUrl)
+                            .collect(Collectors.toList())
+            );
+        }
         return bookDto;
     }
 
@@ -68,6 +85,21 @@ public class BookService {
         List<Book> books = bookRepository.findRandomBooks(range);
         return books.stream()
                 .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<BookDto> getBookByAuthor(String authorName) {
+        List<Book> books = bookRepository.findByAuthorAuthorName(authorName);
+        return books.stream().map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<BookDto> getBooksByGenre(String genreName) {
+        Genre genres = genreRepository.findByGenreName(genreName).orElseThrow(
+                () -> new RuntimeException("Genre not found")
+        );
+        List<Book> books = bookRepository.findByGenres(List.of(genres));
+        return books.stream().map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 

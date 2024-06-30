@@ -1,6 +1,7 @@
 package com.duyhung.bookstoreapi.repository;
 
 import com.duyhung.bookstoreapi.entity.Book;
+import com.duyhung.bookstoreapi.entity.Genre;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,4 +18,9 @@ public interface BookRepository extends JpaRepository<Book, String> {
     @Query(value = "SELECT TOP (:range) * FROM books ORDER BY NEWID()", nativeQuery = true)
     List<Book> findRandomBooks(@Param("range") int range);
 
+    List<Book> findByAuthorAuthorName(String authorName);
+
+    List<Book> findByGenres(List<Genre> genre);
+
 }
+
