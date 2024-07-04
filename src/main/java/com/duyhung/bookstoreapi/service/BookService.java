@@ -1,14 +1,8 @@
 package com.duyhung.bookstoreapi.service;
 
 import com.duyhung.bookstoreapi.dto.BookDto;
-import com.duyhung.bookstoreapi.entity.Author;
-import com.duyhung.bookstoreapi.entity.Book;
-import com.duyhung.bookstoreapi.entity.BookImage;
-import com.duyhung.bookstoreapi.entity.Genre;
-import com.duyhung.bookstoreapi.repository.AuthorRepository;
-import com.duyhung.bookstoreapi.repository.BookRepository;
-import com.duyhung.bookstoreapi.repository.GenreRepository;
-import com.duyhung.bookstoreapi.repository.ImageRepository;
+import com.duyhung.bookstoreapi.entity.*;
+import com.duyhung.bookstoreapi.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -25,6 +19,7 @@ public class BookService {
     private final GenreRepository genreRepository;
     private final ModelMapper modelMapper;
     private final ImageRepository imageRepository;
+    private final InventoryRepository inventoryRepository;
 
     public BookDto addNewBook(BookDto bookDto) {
         Author author = authorRepository.findByAuthorName(bookDto.getAuthorName()).orElseThrow(() -> new RuntimeException("Author not found"));
@@ -78,6 +73,12 @@ public class BookService {
                             .collect(Collectors.toList())
             );
         }
+
+        Inventory inventory = inventoryRepository.findByBookBookId(book.getBookId())
+                .orElseThrow(() -> new RuntimeException("Inventory not found"));
+
+        bookDto.setQuantityInStock(inventory.getStock());
+
         return bookDto;
     }
 

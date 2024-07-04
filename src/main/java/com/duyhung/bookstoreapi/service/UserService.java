@@ -1,11 +1,9 @@
 package com.duyhung.bookstoreapi.service;
 
 import com.duyhung.bookstoreapi.dto.UserDto;
-import com.duyhung.bookstoreapi.entity.AuthRequest;
-import com.duyhung.bookstoreapi.entity.LoginResponse;
-import com.duyhung.bookstoreapi.entity.Role;
-import com.duyhung.bookstoreapi.entity.User;
+import com.duyhung.bookstoreapi.entity.*;
 import com.duyhung.bookstoreapi.jwt.JwtService;
+import com.duyhung.bookstoreapi.repository.CartRepository;
 import com.duyhung.bookstoreapi.repository.RoleRepository;
 import com.duyhung.bookstoreapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +22,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final CartRepository cartRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
@@ -47,6 +46,7 @@ public class UserService {
 
     public LoginResponse login(AuthRequest request) throws UsernameNotFoundException {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        Cart cart = new Cart();
 
         LoginResponse response = new LoginResponse();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
@@ -54,6 +54,8 @@ public class UserService {
             response.setUser(modelMapper.map(userDetail, UserDto.class));
             response.setJwtToken(jwtService.generateJwtToken(userDetail));
         }
+
+
         return response;
     }
 

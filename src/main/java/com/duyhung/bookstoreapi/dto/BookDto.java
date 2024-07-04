@@ -20,4 +20,5 @@ public class BookDto {
     private String authorName;
     private List<String> genreNameList;
     private List<String> imgUrls;
+    private int quantityInStock;
 }

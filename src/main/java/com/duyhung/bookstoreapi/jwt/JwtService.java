@@ -48,11 +48,14 @@ public class JwtService {
         return extractClaim(token).getSubject();
     }
 
-    public boolean verifyToken(String token) {
+    public boolean verifyToken(String token) throws RuntimeException{
         try {
             Claims claims = extractClaim(token);
             Date expirationDate = claims.getExpiration();
-            return !expirationDate.before(new Date());
+            if(expirationDate.before(new Date())){
+                throw new RuntimeException("TOKEN EXPIRE");
+            }
+            return true;
         } catch (Exception e) {
             return false;
         }
