@@ -22,11 +22,16 @@ public class BookController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> getBookListByName(@RequestParam String bookName) {
+    public ResponseEntity<?> getBookListByName(
+            @RequestParam String bookName,
+            @RequestParam int pageNo,
+            @RequestParam int pageSize
+
+    ) {
         return ResponseEntity.ok(new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "Success",
-                bookService.getBooksByName(bookName)
+                bookService.getBooksByName(bookName, pageNo, pageSize)
         ));
     }
 

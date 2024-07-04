@@ -2,6 +2,8 @@ package com.duyhung.bookstoreapi.repository;
 
 import com.duyhung.bookstoreapi.entity.Book;
 import com.duyhung.bookstoreapi.entity.Genre;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +15,7 @@ import java.util.List;
 public interface BookRepository extends JpaRepository<Book, String> {
 
     @Query(nativeQuery = true, value = "select * from books where title like concat('%', :bookName, '%')")
-    List<Book> findAllByName(@Param("bookName") String bookName);
+    Page<Book> findAllByName(@Param("bookName") String bookName, Pageable pageable);
 
     @Query(value = "SELECT TOP (:range) * FROM books ORDER BY NEWID()", nativeQuery = true)
     List<Book> findRandomBooks(@Param("range") int range);
