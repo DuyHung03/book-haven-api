@@ -14,7 +14,7 @@ public class DataSourceConfig {
         dataSourceBuilder.username("sa");
         dataSourceBuilder.password("1234");
         dataSourceBuilder.driverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-        dataSourceBuilder.url("jdbc:sqlserver://TDH\\SQLEXPRESS;encrypt=true;trustServerCertificate=true;databaseName=bookStore");
+        dataSourceBuilder.url("jdbc:sqlserver://TDH\\SQLEXPRESS;encrypt=true;trustServerCertificate=true;databaseName=bookStore;useUnicode=yes;characterEncoding=UTF-8");
         return dataSourceBuilder.build();
     }
 }

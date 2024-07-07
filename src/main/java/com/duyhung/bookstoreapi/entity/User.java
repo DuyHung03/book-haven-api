@@ -25,8 +25,10 @@ public class User implements UserDetails {
     private String email;
     private String phone;
     private String password;
-    private String address;
     private String photoUrl;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Address address;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)

@@ -53,6 +53,8 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/book/**").permitAll()
                         .requestMatchers("/cart/**").hasRole("USER")
+                        .requestMatchers("/address/**").hasRole("USER")
+                        .requestMatchers("/payment/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
