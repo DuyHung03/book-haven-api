@@ -3,12 +3,8 @@ package com.duyhung.bookstoreapi.service;
 import com.duyhung.bookstoreapi.dto.OrderDto;
 import com.duyhung.bookstoreapi.dto.OrderItemDto;
 import com.duyhung.bookstoreapi.entity.*;
-import com.duyhung.bookstoreapi.repository.BookRepository;
-import com.duyhung.bookstoreapi.repository.OrderItemRepository;
-import com.duyhung.bookstoreapi.repository.OrderRepository;
-import com.duyhung.bookstoreapi.repository.UserRepository;
+import com.duyhung.bookstoreapi.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,9 +18,10 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final InventoryRepository inventoryRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
-    private final ModelMapper modelMapper;
+    private final CartService cartService;
 
     public OrderDto saveOrder(OrderDto orderDto, String userId) {
         User user = userRepository.findById(userId)
@@ -38,12 +35,18 @@ public class OrderService {
         List<OrderItem> orderItems = orderDto.getOrderItems().stream().map(orderItemDto -> {
             Book book = bookRepository.findById(orderItemDto.getBookId())
                     .orElseThrow(() -> new RuntimeException("Book not found"));
+            Inventory inventory = inventoryRepository.findByBookBookId(book.getBookId())
+                    .orElseThrow(() -> new RuntimeException("Inventory not found"));
+
+            inventory.setStock(inventory.getStock() - orderItemDto.getQuantity());
+            inventoryRepository.save(inventory);
 
             OrderItem orderItem = new OrderItem();
             orderItem.setBook(book);
             orderItem.setQuantity(orderItemDto.getQuantity());
             orderItem.setOrder(order);
             orderItem.setPrice(book.getPrice());
+            cartService.deleteItemFromCart(orderItemDto.getBookId(), userId);
             return orderItemRepository.save(orderItem);
         }).toList();
 

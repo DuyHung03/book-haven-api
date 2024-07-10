@@ -22,7 +22,7 @@ public interface BookRepository extends JpaRepository<Book, String> {
 
     List<Book> findByAuthorAuthorName(String authorName);
 
-    List<Book> findByGenres(List<Genre> genre);
+    Page<Book> findByGenres(List<Genre> genre, Pageable pageable);
 
 }
 

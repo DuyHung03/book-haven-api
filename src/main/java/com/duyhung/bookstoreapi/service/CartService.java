@@ -22,7 +22,7 @@ public class CartService {
     private final InventoryRepository inventoryRepository;
     private final ModelMapper modelMapper;
 
-    public String addToCart(String userId, String bookId, int quantity) {
+    public CartDto addToCart(String userId, String bookId, int quantity) {
         Book book = bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found"));
 
         Optional<Cart> findCart = cartRepository.findByUserUserId(userId);
@@ -53,15 +53,20 @@ public class CartService {
 
         cartRepository.save(cart);
 
-        return "Add to cart successfully";
+        return convertToDto(cart);
     }
 
     public CartDto getItemsFromCart(String userId) {
         Cart cart = cartRepository.findByUserUserId(userId).orElseThrow(() -> new RuntimeException("Cart not found"));
+        cart.getCartItems().forEach(cartItem -> {
+            if (cartItem.getQuantity() > cartItem.getBook().getInventory().getStock()){
+                cartItem.setQuantity(cartItem.getBook().getInventory().getStock());
+            }
+        });
         return convertToDto(cart);
     }
 
-    public String deleteItemFromCart(String bookId, String userId) {
+    public CartDto deleteItemFromCart(String bookId, String userId) {
         Cart findCart = cartRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         CartItem findBookInCart = cartItemRepository.findByBookBookIdAndCartCartId(bookId, findCart.getCartId())
@@ -69,7 +74,7 @@ public class CartService {
 
         cartItemRepository.delete(findBookInCart);
 
-        return "Delete successfully";
+        return convertToDto(findCart);
     }
 
     private CartDto convertToDto(Cart cart) {

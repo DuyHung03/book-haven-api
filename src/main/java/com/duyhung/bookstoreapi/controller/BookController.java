@@ -54,11 +54,15 @@ public class BookController {
     }
 
     @GetMapping("/getByGenre")
-    public ResponseEntity<?> getBooksByGenre(@RequestParam String genreName) {
+    public ResponseEntity<?> getBooksByGenre(
+            @RequestParam String genreName,
+            @RequestParam int pageNo,
+            @RequestParam int pageSize
+    ) {
         return ResponseEntity.ok(new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "Success",
-                bookService.getBooksByGenre(genreName)
+                bookService.getBooksByGenre(genreName, pageNo, pageSize)
         ));
     }
 }

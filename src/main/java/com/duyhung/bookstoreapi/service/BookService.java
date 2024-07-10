@@ -97,11 +97,11 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
-    public List<BookDto> getBooksByGenre(String genreName) {
-        Genre genres = genreRepository.findByGenreName(genreName).orElseThrow(
+    public List<BookDto> getBooksByGenre(String genreName,int pageNo, int pageSize) {
+        Genre genre = genreRepository.findByGenreName(genreName).orElseThrow(
                 () -> new RuntimeException("Genre not found")
         );
-        List<Book> books = bookRepository.findByGenres(List.of(genres));
+        Page<Book> books = bookRepository.findByGenres(List.of(genre), PageRequest.of(pageNo,pageSize));
         return books.stream().map(this::convertToDto)
                 .collect(Collectors.toList());
     }
