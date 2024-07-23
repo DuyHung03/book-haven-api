@@ -4,8 +4,11 @@ import com.duyhung.bookstoreapi.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -14,7 +17,7 @@ import java.util.Date;
 @Component
 public class JwtService {
 
-    private static final Long EXPIRY_DATE = 604800000L; // 7 days in milliseconds
+    private static final Long EXPIRY_DATE = 5 * 60 * 1000L; // 5 minutes in milliseconds
 
     @Value("${jwt.secret-key}")
     private String secretKey;
@@ -61,4 +64,8 @@ public class JwtService {
         }
     }
 
+    public String getJwtFromCookies(HttpServletRequest request) {
+        Cookie cookie = WebUtils.getCookie(request, "accessToken");
+        return cookie != null ? cookie.getValue() : null;
+    }
 }

@@ -49,7 +49,7 @@ public class OrderService {
             cartService.deleteItemFromCart(orderItemDto.getBookId(), userId);
             return orderItemRepository.save(orderItem);
         }).toList();
-
+        order.setShippingCode(orderDto.getShippingCode());
         order.setOrderItems(orderItems);
         return convertToDto(order);
     }
@@ -85,6 +85,8 @@ public class OrderService {
         orderDto.setOrderId(order.getOrderId());
         orderDto.setOrderDate(new Date());
         orderDto.setTotalAmount(order.getTotalAmount());
+        orderDto.setOrderStatus(order.getOrderStatus());
+        orderDto.setShippingCode(order.getShippingCode());
         orderDto.setOrderItems(
                 order.getOrderItems().stream().map(this::convertToDto)
                         .collect(Collectors.toList())

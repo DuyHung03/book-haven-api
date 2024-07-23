@@ -25,6 +25,11 @@ public class Order {
     private Date orderDate;
     private String totalAmount;
 
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus = OrderStatus.PENDING;
+
+    private String shippingCode;
+
     @OneToMany(mappedBy = "order",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
 

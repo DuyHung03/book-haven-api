@@ -46,7 +46,6 @@ public class UserService {
 
     public LoginResponse login(AuthRequest request) throws UsernameNotFoundException {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        Cart cart = new Cart();
 
         LoginResponse response = new LoginResponse();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
