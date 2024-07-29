@@ -11,21 +11,22 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalException {
 
     @ExceptionHandler(RuntimeException.class)
-    private ResponseEntity<?> runtimeException(RuntimeException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+    public ResponseEntity<ApiResponse<?>> handleRuntimeException(RuntimeException exception) {
+        ApiResponse<?> response = new ApiResponse<>(
                 HttpStatus.BAD_REQUEST.value(),
                 exception.getMessage(),
                 null
-        ));
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    private ResponseEntity<?> usernameNotFoundException(UsernameNotFoundException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+    public ResponseEntity<ApiResponse<?>> handleUsernameNotFoundException(UsernameNotFoundException exception) {
+        ApiResponse<?> response = new ApiResponse<>(
                 HttpStatus.BAD_REQUEST.value(),
                 exception.getMessage(),
                 null
-        ));
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 }

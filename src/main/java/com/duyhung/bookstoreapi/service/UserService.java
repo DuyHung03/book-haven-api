@@ -3,7 +3,7 @@ package com.duyhung.bookstoreapi.service;
 import com.duyhung.bookstoreapi.dto.UserDto;
 import com.duyhung.bookstoreapi.entity.*;
 import com.duyhung.bookstoreapi.jwt.JwtService;
-import com.duyhung.bookstoreapi.repository.CartRepository;
+import com.duyhung.bookstoreapi.repository.PasswordResetTokenRepository;
 import com.duyhung.bookstoreapi.repository.RoleRepository;
 import com.duyhung.bookstoreapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,16 +17,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final CartRepository cartRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
     private final ModelMapper modelMapper;
+    private final VerifyCodeService verifyCodeService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
 
     public String register(AuthRequest request) throws Exception {
@@ -37,6 +42,7 @@ public class UserService {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPhone(request.getPhone());
         Role role = roleRepository.findById(1L).orElseThrow();
         user.setRole(role);
         userRepository.save(user);
@@ -57,5 +63,44 @@ public class UserService {
 
         return response;
     }
+
+    public void saveAvatarUrl(String url, String userId) throws RuntimeException {
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        findUser.setPhotoUrl(url);
+        userRepository.save(findUser);
+    }
+
+    public String verification(String code, String userId) throws RuntimeException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (verifyCodeService.validateCode(code)) {
+            PasswordResetToken token = new PasswordResetToken();
+            LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(5);
+            token.setToken(UUID.randomUUID().toString());
+            token.setExpiryDate(expirationTime);
+            token.setUser(user);
+            passwordResetTokenRepository.save(token);
+            return "http://localhost:5173/user/" + userId + "/change-password?token=" + token.getToken();
+        } else {
+            throw new RuntimeException("Invalid verification code");
+        }
+    }
+
+    public String resetPassword(String token, String newPassword) throws RuntimeException {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token);
+        if (resetToken == null || resetToken.isExpired()) {
+            throw new RuntimeException("Invalid request token");
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        passwordResetTokenRepository.delete(resetToken);
+        return "Password successfully changed";
+    }
+
 
 }

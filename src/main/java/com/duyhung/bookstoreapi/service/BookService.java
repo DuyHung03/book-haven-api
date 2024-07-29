@@ -50,7 +50,7 @@ public class BookService {
     }
 
     public List<BookDto> getBooksByName(String bookName, int pageNo, int pageSize) {
-        Page<Book> books = bookRepository.findAllByName(bookName, PageRequest.of(pageNo,pageSize));
+        Page<Book> books = bookRepository.findAllByName(bookName.trim().toLowerCase(), PageRequest.of(pageNo,pageSize));
 
         return books.stream()
                 .map(this::convertToDto)

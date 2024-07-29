@@ -1,9 +1,9 @@
 package com.duyhung.bookstoreapi.jwt;
 
 import com.duyhung.bookstoreapi.entity.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,11 +13,13 @@ import org.springframework.web.util.WebUtils;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtService {
 
-    private static final Long EXPIRY_DATE = 5 * 60 * 1000L; // 5 minutes in milliseconds
+    @Value("${jwt.secret-key.expiration}")
+    private Long EXPIRY_DATE;
 
     @Value("${jwt.secret-key}")
     private String secretKey;
@@ -39,6 +41,10 @@ public class JwtService {
                 .compact();
     }
 
+    public String generateRefreshToken() {
+        return UUID.randomUUID().toString();
+    }
+
     public Claims extractClaim(String token) {
         return Jwts.parser()
                 .verifyWith(getKey())
@@ -51,16 +57,24 @@ public class JwtService {
         return extractClaim(token).getSubject();
     }
 
-    public boolean verifyToken(String token) throws RuntimeException{
+    public boolean verifyToken(String token) throws RuntimeException {
         try {
             Claims claims = extractClaim(token);
             Date expirationDate = claims.getExpiration();
-            if(expirationDate.before(new Date())){
+            if (expirationDate.before(new Date())) {
                 throw new RuntimeException("TOKEN EXPIRE");
             }
             return true;
-        } catch (Exception e) {
-            return false;
+        } catch (SignatureException e) {
+            throw new RuntimeException("Invalid JWT signature:", e);
+        } catch (MalformedJwtException e) {
+                throw new RuntimeException("Invalid JWT token" + e);
+        } catch (ExpiredJwtException e) {
+                throw new RuntimeException("JWT token is expired:", e);
+        } catch (UnsupportedJwtException e) {
+                throw new RuntimeException("JWT token is unsupported:", e);
+        } catch (IllegalArgumentException e) {
+                throw new RuntimeException("JWT claims string is empty:", e);
         }
     }
 
