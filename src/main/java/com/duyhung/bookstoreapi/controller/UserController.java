@@ -1,5 +1,6 @@
 package com.duyhung.bookstoreapi.controller;
 
+import com.duyhung.bookstoreapi.dto.UserDto;
 import com.duyhung.bookstoreapi.entity.ApiResponse;
 import com.duyhung.bookstoreapi.entity.AuthRequest;
 import com.duyhung.bookstoreapi.service.UserService;
@@ -50,6 +51,14 @@ public class UserController {
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
         return ResponseEntity.ok().body(new ApiResponse<>(HttpStatus.OK.value(), "Success", userService.resetPassword(token, newPassword)));
+    }
+
+    @PostMapping("/user/editInfo")
+    public ResponseEntity<?> editInfo(
+            @RequestBody UserDto userDto
+    ) {
+        return ResponseEntity.ok().body(new ApiResponse<>(HttpStatus.OK.value(), "Success", userService.saveUserInfo(userDto)));
+
     }
 
 }

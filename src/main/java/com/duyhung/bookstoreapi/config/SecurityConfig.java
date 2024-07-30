@@ -56,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers("/address/**").hasRole("USER")
                         .requestMatchers("/payment/**").hasRole("USER")
                         .requestMatchers("/email/**").hasRole("USER")
+                        .requestMatchers("/user/**").hasRole("USER")
                         .requestMatchers("/verification").hasRole("USER")
                         .anyRequest().authenticated()
                 )

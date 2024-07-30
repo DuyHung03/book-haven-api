@@ -102,5 +102,16 @@ public class UserService {
         return "Password successfully changed";
     }
 
+    public UserDto saveUserInfo(UserDto userDto)throws RuntimeException{
+        User user = userRepository.findById(userDto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setPhone(userDto.getPhone());
+        user.setName(userDto.getName());
+        user.setBirthday(userDto.getBirthday());
+        user.setGender(userDto.getGender());
+        userRepository.save(user);
+
+        return modelMapper.map(user, UserDto.class);
+    }
 
 }

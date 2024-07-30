@@ -29,6 +29,9 @@ public class User implements UserDetails {
     private String phone;
     private String password;
     private String photoUrl;
+    private String name;
+    private String gender;
+    private String birthday;
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Address address;
