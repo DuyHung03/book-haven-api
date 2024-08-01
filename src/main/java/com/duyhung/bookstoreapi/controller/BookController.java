@@ -3,6 +3,7 @@ package com.duyhung.bookstoreapi.controller;
 import com.duyhung.bookstoreapi.dto.BookDto;
 import com.duyhung.bookstoreapi.entity.ApiResponse;
 import com.duyhung.bookstoreapi.service.BookService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public class BookController {
             @RequestParam int pageNo,
             @RequestParam int pageSize
 
-    ) {
+    ) throws JsonProcessingException {
         return ResponseEntity.ok(new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "Success",
@@ -58,7 +59,7 @@ public class BookController {
             @RequestParam String genreName,
             @RequestParam int pageNo,
             @RequestParam int pageSize
-    ) {
+    ) throws JsonProcessingException {
         return ResponseEntity.ok(new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "Success",

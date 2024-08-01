@@ -1,8 +1,10 @@
 package com.duyhung.bookstoreapi.service;
 
 import com.duyhung.bookstoreapi.dto.BookDto;
+import com.duyhung.bookstoreapi.dto.BooksResponse;
 import com.duyhung.bookstoreapi.entity.*;
 import com.duyhung.bookstoreapi.repository.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -22,39 +24,47 @@ public class BookService {
     private final ModelMapper modelMapper;
     private final ImageRepository imageRepository;
     private final InventoryRepository inventoryRepository;
+    private final BookRedisService bookRedisService;
 
     public BookDto addNewBook(BookDto bookDto) {
-        Author author = authorRepository.findByAuthorName(bookDto.getAuthorName()).orElseThrow(() -> new RuntimeException("Author not found"));
+        Author author = authorRepository.findByAuthorName(bookDto.getAuthorName())
+                .orElseThrow(() -> new RuntimeException("Author not found"));
 
-        List<Genre> genres = bookDto.getGenreNameList().stream().map(genreName -> genreRepository.findByGenreName(genreName).orElseThrow(() -> new RuntimeException("Genre not found"))).collect(Collectors.toList());
+        List<Genre> genres = bookDto.getGenreNameList().stream()
+                .map(genreName -> genreRepository.findByGenreName(genreName)
+                        .orElseThrow(() -> new RuntimeException("Genre not found")))
+                .collect(Collectors.toList());
 
-        Book book = new Book();
-        book.setTitle(bookDto.getTitle());
-        book.setIsbn(bookDto.getIsbn());
-        book.setPublicationYear(bookDto.getPublicationYear());
-        book.setDescription(bookDto.getDescription());
-        book.setPrice(bookDto.getPrice());
-        book.setPageCount(bookDto.getPageCount());
+        Book book = modelMapper.map(bookDto, Book.class);
         book.setAuthor(author);
         book.setGenres(genres);
         bookRepository.save(book);
 
-        for (String url : bookDto.getImgUrls()) {
+        bookDto.getImgUrls().forEach(url -> {
             BookImage image = new BookImage();
             image.setImageUrl(url);
             image.setBook(book);
             imageRepository.save(image);
-        }
+        });
 
         return bookDto;
     }
 
-    public List<BookDto> getBooksByName(String bookName, int pageNo, int pageSize) {
-        Page<Book> books = bookRepository.findAllByName(bookName.trim().toLowerCase(), PageRequest.of(pageNo,pageSize));
-
-        return books.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+    public BooksResponse getBooksByName(String bookName, int pageNo, int pageSize) throws JsonProcessingException {
+        BooksResponse booksResponse = bookRedisService.getSearchBook(bookName, pageNo, pageSize);
+        if (booksResponse == null) {
+            booksResponse = new BooksResponse();
+            Page<Book> books = bookRepository.findAllByName(bookName.trim().toLowerCase(), PageRequest.of(pageNo, pageSize));
+            List<Book> bookList = books.getContent();
+            List<BookDto> bookDtos = bookList.stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+            booksResponse.setBooks(bookDtos);
+            booksResponse.setTotalPage(books.getTotalPages());
+            booksResponse.setTotalCount(books.getTotalElements());
+            bookRedisService.saveSearchBook(booksResponse, bookName, pageNo, pageSize);
+        }
+        return booksResponse;
     }
 
     private BookDto convertToDto(Book book) {
@@ -97,13 +107,21 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
-    public List<BookDto> getBooksByGenre(String genreName,int pageNo, int pageSize) {
-        Genre genre = genreRepository.findByGenreName(genreName).orElseThrow(
-                () -> new RuntimeException("Genre not found")
-        );
-        Page<Book> books = bookRepository.findByGenres(List.of(genre), PageRequest.of(pageNo,pageSize));
-        return books.stream().map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
+    public BooksResponse getBooksByGenre(String genreName, int pageNo, int pageSize) throws JsonProcessingException {
+        BooksResponse booksResponse = bookRedisService.getSearchBook(genreName, pageNo, pageSize);
+        if (booksResponse == null) {
+            booksResponse = new BooksResponse();
+            Genre genre = genreRepository.findByGenreName(genreName)
+                    .orElseThrow(() -> new RuntimeException("Genre not found"));
+            Page<Book> books = bookRepository.findByGenres(List.of(genre), PageRequest.of(pageNo, pageSize));
+            List<BookDto> bookDtos = books.stream().map(this::convertToDto)
+                    .collect(Collectors.toList());
+            booksResponse.setBooks(bookDtos);
+            booksResponse.setTotalPage(books.getTotalPages());
+            booksResponse.setTotalCount(books.getTotalElements());
+            bookRedisService.saveSearchBook(booksResponse, genreName, pageNo, pageSize);
+        }
 
+        return booksResponse;
+    }
 }

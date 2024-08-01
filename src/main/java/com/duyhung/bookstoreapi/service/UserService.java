@@ -27,7 +27,6 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
-    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
     private final ModelMapper modelMapper;
     private final VerifyCodeService verifyCodeService;
