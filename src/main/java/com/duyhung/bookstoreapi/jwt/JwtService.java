@@ -18,8 +18,11 @@ import java.util.UUID;
 @Component
 public class JwtService {
 
-    @Value("${jwt.secret-key.expiration}")
-    private Long EXPIRY_DATE;
+    @Value("${accessToken-expiration}")
+    private Long ACCESS_TOKEN_EXPIRY_DATE;
+
+    @Value("${refreshToken-expiration}")
+    private Long REFRESH_TOKEN_EXPIRY_DATE;
 
     @Value("${jwt.secret-key}")
     private String secretKey;
@@ -32,17 +35,22 @@ public class JwtService {
         return key;
     }
 
-    public String generateJwtToken(User user) {
+    public String generateJwtToken(String email) {
         return Jwts.builder()
-                .subject(user.getEmail())
+                .subject(email)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRY_DATE))
+                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRY_DATE))
                 .signWith(getKey())
                 .compact();
     }
 
-    public String generateRefreshToken() {
-        return UUID.randomUUID().toString();
+    public String generateRefreshToken(String email) {
+        return Jwts.builder()
+                .subject(email)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRY_DATE))
+                .signWith(getKey())
+                .compact();
     }
 
     public Claims extractClaim(String token) {
@@ -78,8 +86,19 @@ public class JwtService {
         }
     }
 
-    public String getJwtFromCookies(HttpServletRequest request) {
-        Cookie cookie = WebUtils.getCookie(request, "accessToken");
-        return cookie != null ? cookie.getValue() : null;
+//    public String getJwtFromCookies(HttpServletRequest request) {
+//        Cookie cookie = WebUtils.getCookie(request, "accessToken");
+//        return cookie != null ? cookie.getValue() : null;
+//    }
+
+    public String getCookieValue(HttpServletRequest request, String name) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (cookie.getName().equals(name)) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

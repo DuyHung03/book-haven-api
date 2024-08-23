@@ -32,6 +32,7 @@ public class User implements UserDetails {
     private String name;
     private String gender;
     private String birthday;
+    private String refreshToken;
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Address address;

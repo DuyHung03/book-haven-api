@@ -6,6 +6,9 @@ import com.duyhung.bookstoreapi.jwt.JwtService;
 import com.duyhung.bookstoreapi.repository.PasswordResetTokenRepository;
 import com.duyhung.bookstoreapi.repository.RoleRepository;
 import com.duyhung.bookstoreapi.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -49,18 +52,49 @@ public class UserService {
     }
 
 
-    public LoginResponse login(AuthRequest request) throws UsernameNotFoundException {
+    public LoginResponse login(AuthRequest request, HttpServletResponse response) throws UsernameNotFoundException {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-        LoginResponse response = new LoginResponse();
+        LoginResponse loginResponse = new LoginResponse();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            User userDetail = (User) authentication.getPrincipal();
-            response.setUser(modelMapper.map(userDetail, UserDto.class));
-            response.setJwtToken(jwtService.generateJwtToken(userDetail));
+            User user = (User) authentication.getPrincipal();
+            loginResponse.setUser(modelMapper.map(user, UserDto.class));
+            String accessToken = jwtService.generateJwtToken(user.getEmail());
+            String refreshToken = jwtService.generateRefreshToken(user.getEmail());
+            loginResponse.setJwtToken(accessToken);
+            user.setRefreshToken(refreshToken);
+            userRepository.save(user);
+            Cookie accessCookie = new Cookie("accessToken", accessToken);
+            accessCookie.setMaxAge(60);
+            accessCookie.setPath("/");
+            Cookie refreshCookie = new Cookie("refreshToken", accessToken);
+            refreshCookie.setMaxAge(604800);
+            refreshCookie.setHttpOnly(true);
+            refreshCookie.setPath("/");
+            response.addCookie(accessCookie);
+            response.addCookie(refreshCookie);
         }
 
+        return loginResponse;
+    }
 
-        return response;
+    public String refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            String refreshToken = jwtService.getCookieValue(request, "refreshToken");
+            if (refreshToken != null && jwtService.verifyToken(refreshToken)) {
+                String newAccessToken = jwtService.generateJwtToken(jwtService.extractEmail(refreshToken));
+
+                Cookie accessCookie = new Cookie("accessToken", newAccessToken);
+                accessCookie.setMaxAge(60);
+                accessCookie.setPath("/");
+                response.addCookie(accessCookie);
+                return "OK";
+            } else {
+                throw new RuntimeException("Invalid RFT");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     public void saveAvatarUrl(String url, String userId) throws RuntimeException {
@@ -101,7 +135,7 @@ public class UserService {
         return "Password successfully changed";
     }
 
-    public UserDto saveUserInfo(UserDto userDto)throws RuntimeException{
+    public UserDto saveUserInfo(UserDto userDto) throws RuntimeException {
         User user = userRepository.findById(userDto.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setPhone(userDto.getPhone());

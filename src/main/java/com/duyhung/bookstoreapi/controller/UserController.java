@@ -4,7 +4,8 @@ import com.duyhung.bookstoreapi.dto.UserDto;
 import com.duyhung.bookstoreapi.entity.ApiResponse;
 import com.duyhung.bookstoreapi.entity.AuthRequest;
 import com.duyhung.bookstoreapi.service.UserService;
-import com.duyhung.bookstoreapi.service.VerifyCodeService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final VerifyCodeService verifyCodeService;
 
     @PostMapping("/auth/register")
     public ResponseEntity<?> register(@Valid @RequestBody AuthRequest request) throws Exception {
@@ -26,8 +26,13 @@ public class UserController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest request) {
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Success", userService.login(request)));
+    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest request, HttpServletResponse response) {
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Success", userService.login(request, response)));
+    }
+
+    @PostMapping("/auth/refreshToken")
+    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) throws RuntimeException {
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Success", userService.refreshToken(request, response)));
     }
 
     @PutMapping("/user/uploadAvatar")
