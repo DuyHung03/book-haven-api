@@ -65,9 +65,9 @@ public class UserService {
             user.setRefreshToken(refreshToken);
             userRepository.save(user);
             Cookie accessCookie = new Cookie("accessToken", accessToken);
-            accessCookie.setMaxAge(60);
+            accessCookie.setMaxAge(86400);
             accessCookie.setPath("/");
-            Cookie refreshCookie = new Cookie("refreshToken", accessToken);
+            Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
             refreshCookie.setMaxAge(604800);
             refreshCookie.setHttpOnly(true);
             refreshCookie.setPath("/");
@@ -81,11 +81,17 @@ public class UserService {
     public String refreshToken(HttpServletRequest request, HttpServletResponse response) {
         try {
             String refreshToken = jwtService.getCookieValue(request, "refreshToken");
-            if (refreshToken != null && jwtService.verifyToken(refreshToken)) {
+            User user = userRepository.findByRefreshToken(refreshToken)
+                    .orElseThrow(() -> new RuntimeException("Invalid token"));
+            if (refreshToken != null
+                    && jwtService.verifyToken(refreshToken)
+                    && refreshToken.equals(user.getRefreshToken()
+            )) {
+
                 String newAccessToken = jwtService.generateJwtToken(jwtService.extractEmail(refreshToken));
 
                 Cookie accessCookie = new Cookie("accessToken", newAccessToken);
-                accessCookie.setMaxAge(60);
+                accessCookie.setMaxAge(86400);
                 accessCookie.setPath("/");
                 response.addCookie(accessCookie);
                 return "OK";
@@ -98,15 +104,13 @@ public class UserService {
     }
 
     public void saveAvatarUrl(String url, String userId) throws RuntimeException {
-        User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User findUser = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         findUser.setPhotoUrl(url);
         userRepository.save(findUser);
     }
 
     public String verification(String code, String userId) throws RuntimeException {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         if (verifyCodeService.validateCode(code)) {
             PasswordResetToken token = new PasswordResetToken();
@@ -136,8 +140,7 @@ public class UserService {
     }
 
     public UserDto saveUserInfo(UserDto userDto) throws RuntimeException {
-        User user = userRepository.findById(userDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
         user.setPhone(userDto.getPhone());
         user.setName(userDto.getName());
         user.setBirthday(userDto.getBirthday());
