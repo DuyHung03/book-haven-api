@@ -91,7 +91,7 @@ public class EmailService {
         Properties props = new Properties();
         Session session = Session.getDefaultInstance(props, null);
         MimeMessage email = new MimeMessage(session);
-        email.setFrom(new InternetAddress("duyhung1892003@gmail.com"));
+        email.setFrom(new InternetAddress("vkksieunhan2003@gmail.com"));
         email.addRecipient(TO, new InternetAddress(toEmail));
         email.setSubject(subject);
         email.setText(message);
