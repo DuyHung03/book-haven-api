@@ -5,4 +5,4 @@ RUN mvn clean package -DskipTests
 FROM openjdk:17.0.1-jdk-slim
 COPY --from=build /target/book-store-api-0.0.1-SNAPSHOT.jar bookhavenapi.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "jar", "bookhavenapi.jar"]
+ENTRYPOINT ["java", "-jar", "bookhavenapi.jar"]
