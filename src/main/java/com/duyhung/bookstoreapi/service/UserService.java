@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -64,15 +65,8 @@ public class UserService {
             loginResponse.setJwtToken(accessToken);
             user.setRefreshToken(refreshToken);
             userRepository.save(user);
-            Cookie accessCookie = new Cookie("accessToken", accessToken);
-            accessCookie.setMaxAge(86400);
-            accessCookie.setPath("/");
-            Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-            refreshCookie.setMaxAge(604800);
-            refreshCookie.setHttpOnly(true);
-            refreshCookie.setPath("/");
-            response.addCookie(accessCookie);
-            response.addCookie(refreshCookie);
+            setCookie("accessToken", accessToken, 86400, response);
+            setCookie("refreshToken", refreshToken, 604800, response);
         }
 
         return loginResponse;
@@ -90,10 +84,8 @@ public class UserService {
 
                 String newAccessToken = jwtService.generateJwtToken(jwtService.extractEmail(refreshToken));
 
-                Cookie accessCookie = new Cookie("accessToken", newAccessToken);
-                accessCookie.setMaxAge(86400);
-                accessCookie.setPath("/");
-                response.addCookie(accessCookie);
+                setCookie("accessToken", newAccessToken, 86400, response);
+
                 return "OK";
             } else {
                 throw new RuntimeException("Invalid RFT");
@@ -149,5 +141,46 @@ public class UserService {
 
         return modelMapper.map(user, UserDto.class);
     }
+
+    public LoginResponse oauth2Login(OidcUser oidcUser, HttpServletResponse response) {
+        String email = oidcUser.getEmail();
+        String name = oidcUser.getFullName();
+        String phone = oidcUser.getPhoneNumber();
+        String photoUrl = oidcUser.getPicture();
+        String accessToken = jwtService.generateJwtToken(email);
+        String refreshToken = jwtService.generateRefreshToken(email);
+
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            throw new RuntimeException("User already exists");
+        }
+        user = new User();
+        user.setEmail(email);
+        user.setName(name);
+        user.setPhone(phone);
+        user.setPhotoUrl(photoUrl);
+        user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString())); // Set a random password
+        user.setRole(roleRepository.findById(1L).orElseThrow());
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+
+        // Set cookies
+        setCookie("accessToken", accessToken, 86400, response);
+
+        // Return response
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setUser(modelMapper.map(user, UserDto.class));
+        loginResponse.setJwtToken(accessToken);
+        return loginResponse;
+    }
+
+    private void setCookie(String name, String token, int expiry, HttpServletResponse response) {
+        Cookie cookie = new Cookie(name, token);
+        cookie.setMaxAge(expiry);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+    }
+
 
 }

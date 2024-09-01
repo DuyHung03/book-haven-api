@@ -162,7 +162,7 @@
     </dependencies>
 
     <build>
-        <finalName>book-haven-api</finalName>
+        <finalName>book-store-api</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

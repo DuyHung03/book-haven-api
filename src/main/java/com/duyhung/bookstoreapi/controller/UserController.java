@@ -30,6 +30,11 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Success", userService.login(request, response)));
     }
 
+//    @PostMapping("/auth/user-info")
+//    public ResponseEntity<?> oauth2Login(){
+//        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Success", userService.oauth2Login()));
+//    }
+
     @PostMapping("/auth/refreshToken")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) throws RuntimeException {
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Success", userService.refreshToken(request, response)));
