@@ -12,6 +12,7 @@
     <artifactId>book-store-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>book-store-api</name>
+    <packaging>jar</packaging>
     <description>book-store-api</description>
     <url/>
     <licenses>
@@ -152,11 +153,16 @@
             <version>2.17.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
 
 
     </dependencies>
 
     <build>
+        <finalName>book-haven-api</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
