@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "book_ratings")
 public class BookRating {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long ratingId;
 
     @ManyToOne

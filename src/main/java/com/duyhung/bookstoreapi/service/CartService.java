@@ -59,7 +59,7 @@ public class CartService {
     public CartDto getItemsFromCart(String userId) {
         Cart cart = cartRepository.findByUserUserId(userId).orElseThrow(() -> new RuntimeException("Cart not found"));
         cart.getCartItems().forEach(cartItem -> {
-            if (cartItem.getQuantity() > cartItem.getBook().getInventory().getStock()){
+            if (cartItem.getQuantity() > cartItem.getBook().getInventory().getStock()) {
                 cartItem.setQuantity(cartItem.getBook().getInventory().getStock());
             }
         });

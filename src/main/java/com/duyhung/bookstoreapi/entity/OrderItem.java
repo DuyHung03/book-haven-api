@@ -12,7 +12,7 @@ import lombok.*;
 @Table(name = "order_items")
 public class OrderItem {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

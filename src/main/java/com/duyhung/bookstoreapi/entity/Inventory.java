@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity@Table(name = "inventory")
 public class Inventory {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long inventoryId;
 
     @OneToOne(fetch = FetchType.LAZY)

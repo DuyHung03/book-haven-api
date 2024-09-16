@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "address")
 public class Address {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long addressId;
 
     @OneToOne(fetch = FetchType.LAZY)

@@ -15,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "payment")
 public class Payment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
     private String txnRef;
     private String responseCode;

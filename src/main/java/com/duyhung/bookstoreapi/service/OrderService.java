@@ -70,7 +70,7 @@ public class OrderService {
 
     public OrderItemDto convertToDto(OrderItem orderItem) {
         OrderItemDto orderItemDto = new OrderItemDto();
-        orderItemDto.setId(orderItem.getId());
+        orderItemDto.setCartItemId(orderItem.getId());
         orderItemDto.setBookId(orderItem.getBook().getBookId());
         orderItemDto.setTitle(orderItem.getBook().getTitle());
         orderItemDto.setAuthorName(orderItem.getBook().getAuthor().getAuthorName());
