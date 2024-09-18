@@ -6,9 +6,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/demo
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=1234
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:6543/postgres?prepareThreshold=0
+      - SPRING_DATASOURCE_USERNAME=postgres.jlhrtcptnfjevptfisza
+      - SPRING_DATASOURCE_PASSWORD=Duyhung@1892003
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_SHOW_SQL=true
       - SPRING_MAIL_HOST=smtp.gmail.com
@@ -18,8 +18,9 @@ services:
       - REFRESH_TOKEN_EXPIRATION=604800000
       - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID=380860810978-c9e086tika4d5aa0goslg0iokhf1o2hh.apps.googleusercontent.com
       - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET=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
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_HOST=redis-19907.c295.ap-southeast-1-1.ec2.redns.redis-cloud.com
+      - SPRING_REDIS_PORT=19907
+      - SPRING_REDIS_PASSWORD=mNSCLBzov9pLYjh4L2jCjMg6bxdODVf9
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
       - SPRING_JPA_PROPERTIES_HIBERNATE_BOOT_ALLOW_JDBC_METADATA_ACCESS=false
@@ -28,9 +29,6 @@ services:
       - SERVER_SERVLET_ENCODING_CHARSET=UTF-8
       - SERVER_SERVLET_ENCODING_ENABLED=true
       - SERVER_SERVLET_ENCODING_FORCE=true
-      - SPRING_DATA_REDIS_HOST=redis-19907.c295.ap-southeast-1-1.ec2.redns.redis-cloud.com
-      - SPRING_DATA_REDIS_PORT=19907
-      - SPRING_DATA_REDIS_PASSWORD=mNSCLBzov9pLYjh4L2jCjMg6bxdODVf9
       - SPRING_MAIN_ALLOW_CIRCULAR_REFERENCES=true
       - DEBUG=true
       - SPRING_APPLICATION_NAME=book-store-api
@@ -43,20 +41,8 @@ services:
     working_dir: /app
     command: ["./mvnw", "spring-boot:run"]
     depends_on:
-      - postgres
       - redis
 
-  postgres:
-    image: postgres
-    container_name: postgres
-    environment:
-      POSTGRES_DB: demo
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data
   redis:
     image: redis
     container_name: redis
@@ -66,6 +52,7 @@ services:
     hostname: redis
     ports:
       - "6379:6379"
+
   redis_insight:
     image: redislabs/redisinsight:latest
     container_name: redis_insight
@@ -74,7 +61,7 @@ services:
       - "8001:8001"
     volumes:
       - redis_insight_volume_data:/db
+
 volumes:
   redis_volume_data:
   redis_insight_volume_data:
-
