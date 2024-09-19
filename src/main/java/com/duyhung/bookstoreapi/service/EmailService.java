@@ -85,7 +85,7 @@ public class EmailService {
         LocalServerReceiver receiver = new LocalServerReceiver.Builder()
                 .setHost("book-haven-api.onrender.com")
                 .setCallbackPath("/Callback")
-                .setPort(8888)
+                .setPort(8080)
                 .build();
         log.info("Local Server Receiver initialized on port 8888.");
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
