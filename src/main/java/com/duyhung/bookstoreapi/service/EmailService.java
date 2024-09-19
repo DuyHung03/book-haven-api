@@ -83,8 +83,8 @@ public class EmailService {
         log.info("Google Authorization Code Flow initialized.");
 
         LocalServerReceiver receiver = new LocalServerReceiver.Builder()
-                .setHost("book-haven-api.onrender.com")
-                .setCallbackPath("/Callback")
+                .setHost("book-haven-api-1.onrender.com")
+                .setPort(8080)
                 .build();
         log.info("Local Server Receiver initialized on port 8888.");
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
