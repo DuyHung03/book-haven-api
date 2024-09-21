@@ -6,6 +6,7 @@ import com.duyhung.bookstoreapi.jwt.JwtService;
 import com.duyhung.bookstoreapi.repository.PasswordResetTokenRepository;
 import com.duyhung.bookstoreapi.repository.RoleRepository;
 import com.duyhung.bookstoreapi.repository.UserRepository;
+import com.duyhung.bookstoreapi.repository.VerifyCodeRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,7 +36,7 @@ public class UserService {
     private final ModelMapper modelMapper;
     private final VerifyCodeService verifyCodeService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
-
+    private final VerifyCodeRepository verifyCodeRepository;
 
     public String register(AuthRequest request) throws Exception {
         User userExisted = userRepository.findByEmail(request.getEmail());
@@ -182,5 +183,12 @@ public class UserService {
         response.addCookie(cookie);
     }
 
-
+    public String saveOTP(String code) {
+        LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(5);
+        VerifyCode verifyCode = new VerifyCode();
+        verifyCode.setCode(code);
+        verifyCode.setExpirationTime(expirationTime);
+        verifyCodeRepository.save(verifyCode);
+        return "OPT saved";
+    }
 }

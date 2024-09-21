@@ -58,6 +58,13 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Success", userService.verification(code, userId)));
     }
 
+    @PostMapping("/saveOpt")
+    public ResponseEntity<?> saveOpt(
+            @RequestParam String code
+    ){
+        return  ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Success", userService.saveOTP(code)));
+    }
+
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
         return ResponseEntity.ok().body(new ApiResponse<>(HttpStatus.OK.value(), "Success", userService.resetPassword(token, newPassword)));
