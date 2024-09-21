@@ -26,6 +26,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
         LoginResponse loginResponse = userService.oauth2Login(oidcUser, response);
-        response.sendRedirect("http://localhost:5173/oauth2-response");
+        response.sendRedirect("https://book-haven-frontend-seven.vercel.app/oauth2-response");
     }
 }

@@ -112,7 +112,7 @@ public class UserService {
             token.setExpiryDate(expirationTime);
             token.setUser(user);
             passwordResetTokenRepository.save(token);
-            return "http://localhost:5173/user/" + userId + "/change-password?token=" + token.getToken();
+            return "https://book-haven-frontend-seven.vercel.app/user/" + userId + "/change-password?token=" + token.getToken();
         } else {
             throw new RuntimeException("Invalid verification code");
         }

@@ -13,7 +13,7 @@ import java.util.TimeZone;
 public class VNPayConfig {
 
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ReturnUrl = "http://localhost:5173/payment_return";
+    public static String vnp_ReturnUrl = "https://book-haven-frontend-seven.vercel.app/payment_return";
     public static String vnp_TmnCode = "FMPM9R6P";
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
     public static String vnp_Version = "2.1.0";

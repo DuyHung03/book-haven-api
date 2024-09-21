@@ -58,14 +58,14 @@ public class SecurityConfig {
                             @Override
                             public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
                                 OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
-                                response.sendRedirect("http://localhost:5173/oauth2-response?status=success");
+                                response.sendRedirect("https://book-haven-frontend-seven.vercel.app/oauth2-response?status=success");
                             }
                         })
                         .failureHandler(new AuthenticationFailureHandler() {
                             @Override
                             public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
                                 // Handle failure
-                                response.sendRedirect("http://localhost:5173/oauth2-response?status=failure");
+                                response.sendRedirect("https://book-haven-frontend-seven.vercel.app/oauth2-response?status=failure");
                             }
                         })
                 )
