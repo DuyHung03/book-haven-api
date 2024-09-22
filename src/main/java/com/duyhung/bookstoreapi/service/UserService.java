@@ -178,7 +178,7 @@ public class UserService {
     private void setCookie(String name, String token, int expiry, HttpServletResponse response) {
         Cookie cookie = new Cookie(name, token);
         cookie.setMaxAge(expiry);
-        cookie.setHttpOnly(true);
+//        cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
     }
